@@ -80,7 +80,7 @@ export class McpCommand implements CliCommand {
 
       if (outcome.kind === "qr") {
         this.io.line(
-          `Profile "${options.profile}" is not connected. Run "wwebmcp connect --profile ${options.profile}" first.`,
+          `Profile "${options.profile}" is not connected. Run "wappmcp connect --profile ${options.profile}" first.`,
         );
       } else if (outcome.kind === "auth_failure") {
         this.io.line(`Authentication failed: ${outcome.message}`);

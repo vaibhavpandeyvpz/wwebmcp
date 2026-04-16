@@ -1,10 +1,10 @@
 {
-  "name": "wwebmcp",
+  "name": "wappmcp",
   "version": "0.1.0",
   "description": "TypeScript stdio MCP server and CLI for WhatsApp Web.",
   "type": "module",
   "bin": {
-    "wwebmcp": "./dist/index.js"
+    "wappmcp": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "files": [
@@ -30,12 +30,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vaibhavpandeyvpz/wwebmcp.git"
+    "url": "git+https://github.com/vaibhavpandeyvpz/wappmcp.git"
   },
   "bugs": {
-    "url": "https://github.com/vaibhavpandeyvpz/wwebmcp/issues"
+    "url": "https://github.com/vaibhavpandeyvpz/wappmcp/issues"
   },
-  "homepage": "https://github.com/vaibhavpandeyvpz/wwebmcp#readme",
+  "homepage": "https://github.com/vaibhavpandeyvpz/wappmcp#readme",
   "publishConfig": {
     "access": "public"
   },

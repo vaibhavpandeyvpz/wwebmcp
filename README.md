@@ -1,10 +1,10 @@
-# wwebmcp
+# wappmcp
 
-[![npm version](https://img.shields.io/npm/v/wwebmcp)](https://www.npmjs.com/package/wwebmcp)
-[![Publish to NPM](https://github.com/vaibhavpandeyvpz/wwebmcp/actions/workflows/publish-npm.yml/badge.svg)](https://github.com/vaibhavpandeyvpz/wwebmcp/actions/workflows/publish-npm.yml)
+[![npm version](https://img.shields.io/npm/v/wappmcp)](https://www.npmjs.com/package/wappmcp)
+[![Publish to NPM](https://github.com/vaibhavpandeyvpz/wappmcp/actions/workflows/publish-npm.yml/badge.svg)](https://github.com/vaibhavpandeyvpz/wappmcp/actions/workflows/publish-npm.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-`wwebmcp` is an open-source WhatsApp Web CLI and stdio MCP server built on top of `whatsapp-web.js`, `commander`, and `@modelcontextprotocol/sdk`.
+`wappmcp` is an open-source WhatsApp Web CLI and stdio MCP server built on top of `whatsapp-web.js`, `commander`, and `@modelcontextprotocol/sdk`.
 
 It lets MCP-compatible clients read WhatsApp data, send and manage messages, and optionally subscribe to incoming WhatsApp events through an MCP notification channel.
 
@@ -15,33 +15,33 @@ It lets MCP-compatible clients read WhatsApp data, send and manage messages, and
 - Provides read tools for chats, contacts, messages, status, and account details.
 - Includes mutating tools for sending, replying, reacting, editing, deleting, forwarding, and typing.
 - Can emit incoming message events over an optional MCP notification channel.
-- Stores local app data under `~/.wwebmcp/`.
+- Stores local app data under `~/.wappmcp/`.
 
 ## Requirements
 
 - Node.js `24+`
 - A local Chrome or Chromium installation that `puppeteer` can launch
 
-If browser auto-detection does not work in your environment, set either `WWEBMCP_BROWSER_PATH` or `PUPPETEER_EXECUTABLE_PATH`.
+If browser auto-detection does not work in your environment, set either `WAPPMCP_BROWSER_PATH` or `PUPPETEER_EXECUTABLE_PATH`.
 
 ## Installation
 
 Use it without installing globally:
 
 ```bash
-npx wwebmcp profiles
+npx wappmcp profiles
 ```
 
 Or with Bun:
 
 ```bash
-bunx wwebmcp profiles
+bunx wappmcp profiles
 ```
 
 If you prefer a global install:
 
 ```bash
-npm install -g wwebmcp
+npm install -g wappmcp
 ```
 
 For local development:
@@ -57,19 +57,19 @@ npm run dev -- profiles
 1. Connect a profile and scan the QR code:
 
 ```bash
-npx wwebmcp connect --profile personal
+npx wappmcp connect --profile personal
 ```
 
 2. Start the MCP server for that profile:
 
 ```bash
-npx wwebmcp mcp --profile personal
+npx wappmcp mcp --profile personal
 ```
 
 3. If your MCP host supports notifications and you want incoming WhatsApp events, provide a channel name:
 
 ```bash
-npx wwebmcp mcp --profile personal --channel claude/channel
+npx wappmcp mcp --profile personal --channel claude/channel
 ```
 
 The server uses stdio, so it is meant to be launched by an MCP client or wrapper rather than browsed directly in a terminal.
@@ -79,8 +79,8 @@ The server uses stdio, so it is meant to be launched by an MCP client or wrapper
 ### Connect
 
 ```bash
-npx wwebmcp connect --profile sales
-bunx wwebmcp connect --profile sales
+npx wappmcp connect --profile sales
+bunx wappmcp connect --profile sales
 ```
 
 Starts WhatsApp for the profile, prints a QR code when needed, waits for the account to become ready, then exits.
@@ -88,8 +88,8 @@ Starts WhatsApp for the profile, prints a QR code when needed, waits for the acc
 ### MCP Server
 
 ```bash
-npx wwebmcp mcp --profile sales
-bunx wwebmcp mcp --profile sales
+npx wappmcp mcp --profile sales
+bunx wappmcp mcp --profile sales
 ```
 
 Starts the stdio MCP server for a connected profile.
@@ -97,14 +97,14 @@ Starts the stdio MCP server for a connected profile.
 Optional channel support:
 
 ```bash
-npx wwebmcp mcp --profile sales --channel claude/channel
+npx wappmcp mcp --profile sales --channel claude/channel
 ```
 
 ### Disconnect
 
 ```bash
-npx wwebmcp disconnect --profile sales
-bunx wwebmcp disconnect --profile sales
+npx wappmcp disconnect --profile sales
+bunx wappmcp disconnect --profile sales
 ```
 
 Starts the client, logs out if an active session exists, closes the client, deletes the stored local profile data, and exits.
@@ -112,8 +112,8 @@ Starts the client, logs out if an active session exists, closes the client, dele
 ### List Profiles
 
 ```bash
-npx wwebmcp profiles
-bunx wwebmcp profiles
+npx wappmcp profiles
+bunx wappmcp profiles
 ```
 
 Lists locally stored profiles.
@@ -159,11 +159,11 @@ The event payload includes:
 - `message`
 - `text`
 
-If the incoming message or its quoted parent contains media, attachments are downloaded and included in the emitted event payload. Files are stored under `~/.wwebmcp/attachments/`.
+If the incoming message or its quoted parent contains media, attachments are downloaded and included in the emitted event payload. Files are stored under `~/.wappmcp/attachments/`.
 
 ## Local Data
 
-`wwebmcp` stores local state under `~/.wwebmcp/`:
+`wappmcp` stores local state under `~/.wappmcp/`:
 
 - `profiles/` for WhatsApp profile/session data
 - `attachments/` for downloaded incoming media attachments

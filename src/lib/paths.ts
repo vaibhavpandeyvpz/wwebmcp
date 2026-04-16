@@ -2,7 +2,7 @@ import { mkdir, rm } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-export const APP_FOLDER = ".wwebmcp";
+export const APP_FOLDER = ".wappmcp";
 
 export function attachmentsRoot(): string {
   return join(homedir(), APP_FOLDER, "attachments");

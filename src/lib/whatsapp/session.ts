@@ -28,7 +28,7 @@ import { profilePath, webCacheRoot } from "../paths.js";
 const { Client, LocalAuth, MessageMedia } = wwebjs;
 
 const executablePath =
-  process.env.WWEBMCP_BROWSER_PATH ||
+  process.env.WAPPMCP_BROWSER_PATH ||
   process.env.PUPPETEER_EXECUTABLE_PATH ||
   "";
 
