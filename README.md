@@ -150,7 +150,7 @@ The server currently exposes these tools:
 When started with `--channel <name>`, the server:
 
 - advertises the experimental MCP capability `<name>`
-- emits `notifications/<name>` for incoming WhatsApp `message_create` events
+- emits `notifications/<name>` for incoming WhatsApp `message` events
 
 The event payload includes:
 

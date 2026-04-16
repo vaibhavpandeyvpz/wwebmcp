@@ -16,7 +16,7 @@ export interface MessageChannelEvent {
 }
 
 /**
- * Bridges the WhatsApp `message_create` event stream to MCP channel
+ * Bridges the WhatsApp `message` (incoming-only) event stream to MCP channel
  * notifications. Owns the listener lifecycle: call {@link start} after the
  * MCP transport is connected and the returned unsubscribe runs automatically
  * when the underlying `Server` closes.
@@ -34,7 +34,7 @@ export class WhatsAppChannel {
   async start(): Promise<void> {
     this.self = await this.session.getMe();
 
-    const onMessageCreate = (message: WwebMessage) => {
+    const onMessage = (message: WwebMessage) => {
       void (async () => {
         try {
           const event = await this.createEvent(message);
@@ -53,9 +53,8 @@ export class WhatsAppChannel {
       })();
     };
 
-    this.session.client!.on("message_create", onMessageCreate);
-    this.unsubscribe = () =>
-      this.session.client?.off("message_create", onMessageCreate);
+    this.session.client!.on("message", onMessage);
+    this.unsubscribe = () => this.session.client?.off("message", onMessage);
 
     const onclose = this.mcp.onclose;
     this.mcp.onclose = () => {
