@@ -11,7 +11,7 @@ It lets MCP-compatible clients read WhatsApp data, send and manage messages, and
 ## Highlights
 
 - Exposes WhatsApp as an MCP server over stdio.
-- Supports multiple local profiles.
+- Supports interactive configuration via `wappmcp configure`.
 - Provides read tools for chats, contacts, messages, status, and account details.
 - Includes mutating tools for sending, replying, reacting, editing, deleting, forwarding, and typing.
 - Can emit incoming message events over an optional MCP notification channel.
@@ -29,13 +29,13 @@ If browser auto-detection does not work in your environment, set either `WAPPMCP
 Use it without installing globally:
 
 ```bash
-npx wappmcp profiles
+npx wappmcp configure
 ```
 
 Or with Bun:
 
 ```bash
-bunx wappmcp profiles
+bunx wappmcp configure
 ```
 
 If you prefer a global install:
@@ -49,82 +49,88 @@ For local development:
 ```bash
 npm install
 npm run build
-npm run dev -- profiles
+npm run dev -- configure
 ```
 
 ## Quick Start
 
-1. Connect a profile and scan the QR code:
+1. Run the interactive configuration:
 
 ```bash
-npx wappmcp connect --profile personal
+npx wappmcp configure
 ```
 
-2. Start the MCP server for that profile:
+This lets you:
+
+- connect WhatsApp (including QR scan when required)
+- disconnect and remove local session data
+- manage `allowlist.users` and `allowlist.chats`
+
+Configuration is saved to:
+
+```text
+.wappmcp/config.json
+```
+
+If `./.wappmcp` exists in the current working directory, that path is used. Otherwise, `~/.wappmcp/config.json` is used.
+
+2. Start the MCP server:
 
 ```bash
-npx wappmcp mcp --profile personal
+npx wappmcp mcp
 ```
 
 3. If your MCP host supports notifications and you want incoming WhatsApp events, enable channels:
 
 ```bash
-npx wappmcp mcp --profile personal --channels
+npx wappmcp mcp --channels
 ```
 
 The server uses stdio, so it is meant to be launched by an MCP client or wrapper rather than browsed directly in a terminal.
 
 ## CLI Usage
 
-### Connect
+### Configure
 
 ```bash
-npx wappmcp connect --profile sales
-bunx wappmcp connect --profile sales
+npx wappmcp configure
+bunx wappmcp configure
 ```
 
-Starts WhatsApp for the profile, prints a QR code when needed, waits for the account to become ready, then exits.
+Opens an interactive configure UI (Ink) to manage WhatsApp connection and event allowlist:
 
-If you need machine-readable QR updates (for wrappers/automation), use:
+- connect/disconnect session
+- `Allowed users`
+- `Allowed chats`
 
-```bash
-npx wappmcp connect --profile sales --json
+Allowed users/chats screens support live type-to-filter search. Large lists are shown in a 5-row scroll viewport, with `Back` kept as a persistent utility row.
+
+Everything is persisted to:
+
+```text
+.wappmcp/config.json
 ```
 
-This prints each QR refresh as one JSON line: `{"qr":"..."}`.
+Session data always lives at:
+
+```text
+.wappmcp/profile
+```
 
 ### MCP Server
 
 ```bash
-npx wappmcp mcp --profile sales
-bunx wappmcp mcp --profile sales
+npx wappmcp mcp
+bunx wappmcp mcp
 ```
 
-Starts the stdio MCP server for a connected profile.
+Starts the stdio MCP server for the configured WhatsApp session.
 
 Optional channel support:
 
 ```bash
-npx wappmcp mcp --profile sales --channels
+npx wappmcp mcp --channels
 ```
-
-### Disconnect
-
-```bash
-npx wappmcp disconnect --profile sales
-bunx wappmcp disconnect --profile sales
-```
-
-Starts the client, logs out if an active session exists, closes the client, deletes the stored local profile data, and exits.
-
-### List Profiles
-
-```bash
-npx wappmcp profiles
-bunx wappmcp profiles
-```
-
-Lists locally stored profiles.
 
 ## MCP Tools
 
@@ -164,6 +170,13 @@ When started with `--channels`, the server:
 - advertises `hooman/channel/permission` for remote daemon approvals
 - emits `notifications/hooman/channel` for incoming WhatsApp `message` events
 
+If allowlist entries are configured, `notifications/hooman/channel` events are emitted only when either:
+
+- `meta.session` (chat ID) is in `allowlist.chats`, or
+- `meta.user` (sender ID) is in `allowlist.users`
+
+When no allowlist is configured (or both arrays are empty), all inbound channel events are emitted.
+
 Each notification includes:
 
 - `content`: a JSON-encoded event payload
@@ -187,7 +200,8 @@ When Hooman sends `notifications/hooman/channel/permission_request`, `wappmcp` p
 
 `wappmcp` stores local state under `./.wappmcp/` when that folder exists in the current working directory, otherwise `~/.wappmcp/`:
 
-- `profiles/` for WhatsApp profile/session data
+- `profile/` for WhatsApp session data
+- `config.json` for allowlist configuration
 - `attachments/` for downloaded incoming media attachments
 - `.wwebjs_cache/` for WhatsApp Web version cache data
 

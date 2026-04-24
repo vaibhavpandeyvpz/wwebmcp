@@ -5,6 +5,10 @@ import { CliIO } from "../lib/cli-io.js";
 import { WhatsAppMcpServer } from "../lib/mcp/server.js";
 import { parseFiniteNumber } from "../lib/number.js";
 import { register } from "../lib/signal-handler.js";
+import {
+  createEventAllowlist,
+  loadWhatsAppConfig,
+} from "../lib/whatsapp/config.js";
 import type { CliCommand } from "../types.js";
 
 const DEFAULT_WAIT_FOR_MS = 60_000;
@@ -17,8 +21,7 @@ export class McpCommand implements CliCommand {
   register(program: CommanderCommand): void {
     program
       .command("mcp")
-      .description("Start the stdio MCP server for a WhatsApp profile")
-      .requiredOption("--profile <name>", "Profile name, for example sales")
+      .description("Start the stdio MCP server for WhatsApp")
       .option(
         "--channels",
         "Enable hooman/channel notifications for WhatsApp messages",
@@ -32,7 +35,6 @@ export class McpCommand implements CliCommand {
   }
 
   private async action(options: {
-    profile: string;
     channels?: boolean;
     waitFor: string;
   }): Promise<void> {
@@ -45,9 +47,9 @@ export class McpCommand implements CliCommand {
       );
     }
 
+    const config = await loadWhatsAppConfig();
     const { WhatsAppSession } = await import("../lib/whatsapp/session.js");
     const session = new WhatsAppSession({
-      profile: options.profile,
       io: this.io,
     });
     let destroyed = false;
@@ -60,21 +62,23 @@ export class McpCommand implements CliCommand {
       await session.destroy();
     };
     const unregister = register(async () => {
-      this.io.line(
-        `Shutting down MCP server for profile "${options.profile}"...`,
-      );
+      this.io.line("Shutting down WhatsApp MCP server...");
       await closeSession();
     });
 
     try {
-      this.io.line(`Starting MCP server for profile "${options.profile}"...`);
+      this.io.line("Starting WhatsApp MCP server...");
       await session.start();
       const outcome = await session.waitForStartup(waitForMs);
 
       if (outcome.kind === "ready") {
+        const allowlist = options.channels
+          ? createEventAllowlist(config.allowlist)
+          : undefined;
         const server = WhatsAppMcpServer.create(
           session,
           Boolean(options.channels),
+          allowlist,
         );
         await server.start(new StdioServerTransport());
         if (options.channels) {
@@ -86,16 +90,14 @@ export class McpCommand implements CliCommand {
 
       if (outcome.kind === "qr") {
         this.io.line(
-          `Profile "${options.profile}" is not connected. Run "wappmcp connect --profile ${options.profile}" first.`,
+          'WhatsApp is not connected. Run "wappmcp configure" first.',
         );
       } else if (outcome.kind === "auth_failure") {
         this.io.line(`Authentication failed: ${outcome.message}`);
       } else if (outcome.kind === "disconnected") {
         this.io.line(`Disconnected: ${outcome.reason}`);
       } else {
-        this.io.line(
-          `Timed out waiting for profile "${options.profile}" to connect.`,
-        );
+        this.io.line("Timed out waiting for WhatsApp to connect.");
       }
 
       process.exitCode = 1;

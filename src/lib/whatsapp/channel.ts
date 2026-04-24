@@ -1,4 +1,5 @@
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import type { WhatsAppEventAllowlist } from "./config.js";
 import type { WhatsAppSession } from "./session.js";
 import type {
   ChannelPermissionBehavior,
@@ -31,6 +32,7 @@ export class WhatsAppChannel {
     private readonly mcp: Server,
     private readonly channel: string,
     private readonly permissionRequests: Map<string, string>,
+    private readonly allowlist?: WhatsAppEventAllowlist,
   ) {}
 
   async start(): Promise<void> {
@@ -53,6 +55,9 @@ export class WhatsAppChannel {
           }
 
           const event = await this.createEvent(message);
+          if (!this.isAllowed(event.message)) {
+            return;
+          }
           await this.mcp.notification({
             method: `notifications/${this.channel}`,
             params: {
@@ -156,6 +161,17 @@ export class WhatsAppChannel {
       behavior,
       messageId,
     };
+  }
+
+  private isAllowed(message: Message | MessageWithParent): boolean {
+    const allowlist = this.allowlist;
+    if (!allowlist || !allowlist.enabled) {
+      return true;
+    }
+    const isChatAllowed = allowlist.chats.has(message.chat.id);
+    const userId = message.sender.id.trim();
+    const isUserAllowed = Boolean(userId && allowlist.users.has(userId));
+    return isChatAllowed || isUserAllowed;
   }
 }
 

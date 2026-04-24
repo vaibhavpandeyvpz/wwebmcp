@@ -6,6 +6,7 @@ import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { z } from "zod";
 import { createJsonResult } from "./helpers.js";
 import { packageMetadata } from "../package-metadata.js";
+import type { WhatsAppEventAllowlist } from "../whatsapp/config.js";
 import { WhatsAppChannel } from "../whatsapp/channel.js";
 import type { WhatsAppSession } from "../whatsapp/session.js";
 
@@ -35,6 +36,7 @@ export class WhatsAppMcpServer {
   private constructor(
     private readonly session: WhatsAppSession,
     private readonly channels: boolean,
+    private readonly allowlist?: WhatsAppEventAllowlist,
   ) {
     this.mcp = new McpServer(
       {
@@ -64,8 +66,9 @@ export class WhatsAppMcpServer {
   static create(
     session: WhatsAppSession,
     channels: boolean,
+    allowlist?: WhatsAppEventAllowlist,
   ): WhatsAppMcpServer {
-    const server = new WhatsAppMcpServer(session, channels);
+    const server = new WhatsAppMcpServer(session, channels, allowlist);
     server.registerTools();
     return server;
   }
@@ -84,6 +87,7 @@ export class WhatsAppMcpServer {
       this.mcp.server,
       HOOMAN_CHANNEL,
       this.permissionRequestsByPromptMessageId,
+      this.allowlist,
     );
     await channel.start();
   }

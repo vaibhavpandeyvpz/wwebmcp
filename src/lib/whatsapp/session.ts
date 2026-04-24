@@ -40,7 +40,6 @@ export type StartResult =
   | { kind: "timeout" };
 
 export class WhatsAppSession {
-  private readonly profile: string;
   private readonly io: CliIO;
   private wwebjs: WwebClient | null = null;
 
@@ -54,12 +53,7 @@ export class WhatsAppSession {
   private readonly authFailureDeferred = createDeferred<string>();
   private readonly disconnectedDeferred = createDeferred<string>();
 
-  constructor(options: {
-    profile: string;
-    io?: CliIO;
-    onQr?: (qr: string) => void;
-  }) {
-    this.profile = options.profile;
+  constructor(options: { io?: CliIO; onQr?: (qr: string) => void }) {
     this.io = options.io ?? new CliIO();
     this.onQr = options.onQr ?? (() => {});
   }
@@ -137,7 +131,43 @@ export class WhatsAppSession {
       return;
     }
 
-    await client.destroy();
+    try {
+      await Promise.race([
+        client.destroy(),
+        new Promise<void>((resolve) => {
+          setTimeout(resolve, 5000);
+        }),
+      ]);
+    } catch {
+      // Continue with best-effort browser cleanup.
+    }
+
+    client.removeAllListeners();
+
+    const browser = (
+      client as unknown as {
+        pupBrowser?: {
+          close?: () => Promise<void>;
+          process?: () => { kill: (signal?: string) => void } | null;
+        };
+      }
+    ).pupBrowser;
+
+    if (!browser) {
+      return;
+    }
+
+    try {
+      await browser.close?.();
+    } catch {
+      // Ignore close failures and try terminating process directly.
+    }
+
+    try {
+      browser.process?.()?.kill("SIGKILL");
+    } catch {
+      // Ignore final cleanup failures.
+    }
   }
 
   async logOut(): Promise<void> {
@@ -520,7 +550,7 @@ export class WhatsAppSession {
       return;
     }
 
-    const dataPath = profilePath(this.profile);
+    const dataPath = profilePath();
     const client = new Client({
       authStrategy: new LocalAuth({ dataPath }),
       webVersionCache: {
@@ -615,8 +645,8 @@ export class WhatsAppSession {
 
     return {
       profile: {
-        name: this.profile,
-        path: profilePath(this.profile),
+        name: "default",
+        path: profilePath(),
       },
       status: this.state,
       device,
