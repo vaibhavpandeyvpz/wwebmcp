@@ -462,7 +462,7 @@ export class WhatsAppMcpServer {
           return;
         }
         const text = [
-          `Hooman wants to run ${params.tool_name}.`,
+          `I want to run ${params.tool_name}.`,
           `Description: ${params.description}`,
           `Input: ${params.input_preview}`,
           "",
