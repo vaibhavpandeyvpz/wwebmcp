@@ -85,6 +85,14 @@ bunx wappmcp connect --profile sales
 
 Starts WhatsApp for the profile, prints a QR code when needed, waits for the account to become ready, then exits.
 
+If you need machine-readable QR updates (for wrappers/automation), use:
+
+```bash
+npx wappmcp connect --profile sales --json
+```
+
+This prints each QR refresh as one JSON line: `{"qr":"..."}`.
+
 ### MCP Server
 
 ```bash

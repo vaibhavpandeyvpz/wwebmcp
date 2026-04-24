@@ -21,12 +21,17 @@ export class ConnectCommand implements CliCommand {
         "Maximum time to wait for WhatsApp startup state before giving up",
         String(DEFAULT_WAIT_FOR_MS),
       )
+      .option(
+        "--json",
+        'Print QR updates as JSON lines ({"qr":"..."}) instead of terminal QR art',
+      )
       .action(this.action.bind(this));
   }
 
   private async action(options: {
     profile: string;
     waitFor: string;
+    json?: boolean;
   }): Promise<void> {
     const waitForMs = parseFiniteNumber(options.waitFor, "--wait-for");
 
@@ -41,6 +46,10 @@ export class ConnectCommand implements CliCommand {
       profile: options.profile,
       io: this.io,
       onQr: (qr: string) => {
+        if (options.json) {
+          this.io.line(JSON.stringify({ qr }));
+          return;
+        }
         this.io.qr(qr);
       },
     });
