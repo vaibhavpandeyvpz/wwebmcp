@@ -61,8 +61,9 @@ export class WhatsAppChannel {
           await this.mcp.notification({
             method: `notifications/${this.channel}`,
             params: {
-              content: JSON.stringify(event),
+              content: event.text ?? "",
               attachments: event.message.attachments,
+              event,
               meta: {
                 source: "whatsapp",
                 user: event.message.sender.id,
