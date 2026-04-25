@@ -1,6 +1,6 @@
 {
   "name": "wappmcp",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "TypeScript stdio MCP server and CLI for WhatsApp Web.",
   "type": "module",
   "bin": {
