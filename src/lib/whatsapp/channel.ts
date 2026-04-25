@@ -62,6 +62,7 @@ export class WhatsAppChannel {
             method: `notifications/${this.channel}`,
             params: {
               content: JSON.stringify(event),
+              attachments: event.message.attachments,
               meta: {
                 source: "whatsapp",
                 user: event.message.sender.id,
