@@ -15,7 +15,7 @@ It lets MCP-compatible clients read WhatsApp data, send and manage messages, and
 - Provides read tools for chats, contacts, messages, status, and account details.
 - Includes mutating tools for sending, replying, reacting, editing, deleting, forwarding, and typing.
 - Can emit incoming message events over an optional MCP notification channel.
-- Stores local app data under `./.wappmcp/` when that folder exists in the current working directory, otherwise `~/.wappmcp/`.
+- Stores local app data under `~/.wappmcp/`.
 
 ## Requirements
 
@@ -69,10 +69,8 @@ This lets you:
 Configuration is saved to:
 
 ```text
-.wappmcp/config.json
+~/.wappmcp/config.json
 ```
-
-If `./.wappmcp` exists in the current working directory, that path is used. Otherwise, `~/.wappmcp/config.json` is used.
 
 2. Start the MCP server:
 
@@ -108,13 +106,13 @@ Allowed users/chats screens support live type-to-filter search. Large lists are 
 Everything is persisted to:
 
 ```text
-.wappmcp/config.json
+~/.wappmcp/config.json
 ```
 
 Session data always lives at:
 
 ```text
-.wappmcp/profile
+~/.wappmcp/profile
 ```
 
 ### MCP Server
@@ -192,13 +190,13 @@ The JSON-decoded `content` payload includes:
 - `message`
 - `text`
 
-If the incoming message or its quoted parent contains media, attachments are downloaded and included in the emitted event payload. Files are stored under `./.wappmcp/attachments/` when `./.wappmcp` exists, otherwise `~/.wappmcp/attachments/`.
+If the incoming message or its quoted parent contains media, attachments are downloaded and included in the emitted event payload. Files are stored under `~/.wappmcp/attachments/`.
 
 When Hooman sends `notifications/hooman/channel/permission_request`, `wappmcp` posts the request back into the originating WhatsApp chat and waits for a reply to that exact message. Supported replies are `yes`, `always`, and `no`, which are relayed back over `notifications/hooman/channel/permission`.
 
 ## Local Data
 
-`wappmcp` stores local state under `./.wappmcp/` when that folder exists in the current working directory, otherwise `~/.wappmcp/`:
+`wappmcp` stores local state under `~/.wappmcp/`:
 
 - `profile/` for WhatsApp session data
 - `config.json` for allowlist configuration
